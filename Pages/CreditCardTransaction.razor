@@ -1,0 +1,70 @@
+@page "/transacao-credito"
+@using BlazorCieloApp.Services
+@using BlazorUmblerApp.Shared
+@inject CieloService CieloService
+@inject MessageDisplay messageDisplay
+@inject IJSRuntime JSRuntime
+
+<h3>Criar Transação de Cartão de Crédito</h3>
+
+@if (transaction != null)
+{
+    <form @onsubmit="HandleSubmit">
+        <div>
+            <label for="nome">Nome:</label>
+            <input id="nome" @bind="transaction.Customer.Name" />
+        </div>
+        <div>
+            <label for="cpf">CPF:</label>
+            <input id="cpf" @bind="transaction.Customer.Identity" />
+        </div>
+        <div>
+            <label for="email">Email:</label>
+            <input id="email" @bind="transaction.Customer.Email" />
+        </div>
+        <div>
+            <label for="email">Birthdate:</label>
+            <input id="email" @bind="transaction.Customer.Birthdate" />
+        </div>
+        <button type="submit">Criar Transação</button>
+    </form>
+}
+else
+{
+    <p>Carregando...</p>
+}
+
+@code {
+    private CreditCardTransactionModel transaction;
+
+    protected override async Task OnInitializedAsync()
+    {
+        transaction = new CreditCardTransactionModel();
+        transaction.Customer = new CreditCardCustomerModel();
+    }
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            var result = await CieloService.CreateTransactionCreditCard(transaction);
+
+            JSRuntime.InvokeVoidAsync("console.log", "Conteudo de result:", result);
+
+            if (result.TryGetValue(true, out var successMessage))
+            {
+                JSRuntime.InvokeVoidAsync("console.log", "Conteudo de successMessage:", successMessage);
+            }
+            else
+            {
+                JSRuntime.InvokeVoidAsync("console.log", "Conteudo de result:", result);
+            }
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            JSRuntime.InvokeVoidAsync("console.log", "Conteudo de result:", ex.Message);
+            StateHasChanged();
+        }
+    }
+}

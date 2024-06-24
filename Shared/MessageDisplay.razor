@@ -1,0 +1,19 @@
+@inject IJSRuntime JSRuntime
+
+<div>
+    @foreach (var message in messages)
+    {
+        <div>@message</div>
+    }
+</div>
+
+@code {
+    private List<string> messages = new List<string>();
+
+    public async Task AddMessage(string message)
+    {
+        messages.Add(message);
+        await JSRuntime.InvokeVoidAsync("setMessageDisplay", messages); // Chamada para JavaScript se necessário
+        StateHasChanged(); // Atualiza o componente após adicionar a mensagem
+    }
+}

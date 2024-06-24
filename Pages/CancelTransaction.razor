@@ -1,0 +1,52 @@
+@page "/cancelar-credito"
+@using BlazorCieloApp.Services
+@using TesteCielo.Models
+@using BlazorUmblerApp.Shared
+@inject CieloService CieloService
+@inject MessageDisplay messageDisplay
+@inject IJSRuntime JSRuntime
+
+<h3>Cancelar Transação de Cartão de Crédito</h3>
+
+<form @onsubmit="HandleSubmit">
+    <div>
+        <label for="pedido">ID do Pedido:</label>
+        <input id="pedido" @bind="cancelModel.MerchantOrderId" />
+    </div>
+    <div>
+        <label for="pagamento">ID do Pagamento:</label>
+        <input id="pagamento" @bind="cancelModel.PaymentId" />
+    </div>
+    <button type="submit">Cancelar Transação</button>
+</form>
+
+@code {
+    private CancelTransactionModel cancelModel = new CancelTransactionModel();
+
+    private async Task HandleSubmit()
+    {
+        try
+        {
+            var result = await CieloService.CancelTransactionCreditCard(cancelModel);
+
+            JSRuntime.InvokeVoidAsync("console.log", "Conteudo de result:", result);
+
+            if (result.TryGetValue(true, out var successMessage))
+            {
+                JSRuntime.InvokeVoidAsync("console.log", "Conteudo de successMessage:", successMessage);
+            }
+            else
+            {
+                JSRuntime.InvokeVoidAsync("console.log", "Conteudo de result:", result);
+            }
+
+            // Garanta que a UI seja atualizada após a modificação de estado
+            StateHasChanged();
+        }
+        catch (Exception ex)
+        {
+            JSRuntime.InvokeVoidAsync("console.log", "Conteudo de result:", ex.Message);
+            StateHasChanged();
+        }
+    }
+}
